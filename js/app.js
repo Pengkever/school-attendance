@@ -47,14 +47,14 @@ $(function() {
                 model.attendance.days.push(i);
             }
         },*/
-        addDays: function(num) { 
+/*        addDays: function(num) { 
             console.log('addDays');
             model.attendance.days.push(num);
         },
         addStudent: function(student) {
             console.log('addStudent');
             model.students.push(student);
-        },
+        },*/
         getDays: function() {
             console.log('getDays');
 
@@ -71,8 +71,15 @@ $(function() {
             daysView.init();
             modelView.init();
         },
-        updateAttendance: function() {
+        updateAttendance: function(name, i) {
             console.log('updateAttendance');
+            if (model[name][i]) {
+                model[name][i] = false;
+            } else {
+                model[name][i] = true;
+            }
+
+            modelView.render();
         }
     };
 
@@ -100,40 +107,46 @@ $(function() {
         init: function() {
             console.log('modelView init');
             var col = octopus.getData();
-            console.log(col);
 
             this.render(col);
         },
         render: function(col) {
             console.log('modelView render');
-            // var students = '';
-            var studentsBody = $('tbody')[0];
-            var studentRows = '',
-                newStudentRow = '';
-            for (var name in col) {
-                var inputCols = '';
-                var studentRow = document.createElement('tr');
-                var studentNameCol = `<td class="name-col">${name}</td>`;
-                for (var value in col[name]) {
-                    var input = `<input type="checkbox">`;
-                    // var input = document.createElement('input');
-                    // input.type = "checkbox";
-/*                    $(input).click(function(this) {
+            var studentsTbody = $('tbody');
+            for(var name in col) {
+                // 第一层：行循环, 建立每一个 studentTr 形成 studentTrs
+                // console.log('modelView render first floor');
+                var studentTr = $('<tr></tr>');
+                var studentNameTd = $(`<td class="name-col">${name}</td>`);
+                studentTr.append(studentNameTd);
+                for (var i = 0; i < col[name].length; i++) {
+                    var studentAttendTd = $(`<td class="attend-col"></td>`);
+                    var checked = (col[name][i]? "checked": undefined);
+                    var inputCheckbox = $(`<input type="checkbox">`);
+                    inputCheckbox.attr("checked", checked);
+                    // console.log(name, i);
+                    inputCheckbox.click(function() {
+                        $(this).removeAttr('checked');
+                        octopus.updateAttendance(name, i);
+                    });
 
-                    });*/
-                    var inputCol = `<td class="attend-col">${input}</td>`;
-                    inputCols += inputCol;
+
+                    studentAttendTd.append(inputCheckbox);
+                    studentTr.append(studentAttendTd);
                 }
-                studentRow.innerHTML = studentNameCol + inputCols;
-                console.log(studentRow);
-                $(studentsBody).append(studentRow);
-                // console.log(studentRows);
-            
-                // var studentName = `<td class="name-col">${col[i]}</td>`;
-                // nameCol[i + 1].insertAdjacentHTML('afterend', studentName);
+                var missed = col[name].length - studentTr.find('[checked]').length;
+                // console.log(col[name].length, studentTr.find('[checked]').length);
+                var studentMissedTd = $(`<td class="missed-col">${missed}</td>`);
+                studentTr.append(studentMissedTd);
+                studentsTbody.append(studentTr);
+                // console.log(studentsTbody.html());
             }
-            // studentsBody.insertAdjacentHTML('afterbegin', studentRows);
-        }
+        },
+        /*update: function() {
+            $('input').click(function() {
+                return modelView.render;
+            });
+        }*/
     };
 
     octopus.init();
