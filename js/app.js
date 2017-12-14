@@ -37,7 +37,14 @@
 
 $(function() {
     /* model : student model days */
-    var model = JSON.parse(localStorage.attendance);
+    var model = {
+        attendance: JSON.parse(localStorage.attendance),
+        days: [],
+        studentAttendday: {
+            name: '',
+            isAttend: []
+        }
+    };
 
     /* octopus */
     var octopus = {
@@ -79,7 +86,7 @@ $(function() {
                 model[name][i] = true;
             }
 
-            modelView.render();
+            modelView.render(model);
         }
     };
 
@@ -113,6 +120,7 @@ $(function() {
         render: function(col) {
             console.log('modelView render');
             var studentsTbody = $('tbody');
+            studentsTbody.empty();
             for(var name in col) {
                 // 第一层：行循环, 建立每一个 studentTr 形成 studentTrs
                 // console.log('modelView render first floor');
@@ -124,20 +132,33 @@ $(function() {
                     var checked = (col[name][i]? "checked": undefined);
                     var inputCheckbox = $(`<input type="checkbox">`);
                     inputCheckbox.attr("checked", checked);
+                    inputCheckbox.attr("name", name);
+                    inputCheckbox.attr("index", i);
+
+                    // 
+
                     // console.log(name, i);
-                    inputCheckbox.click(function() {
-                        $(this).removeAttr('checked');
+/*                    inputCheckbox.click(function() {
+                        var name = this.name;
+                        var i = this.index;
+                        console.log(name, i);
                         octopus.updateAttendance(name, i);
-                    });
+                    });*/
 
 
                     studentAttendTd.append(inputCheckbox);
                     studentTr.append(studentAttendTd);
                 }
-                var missed = col[name].length - studentTr.find('[checked]').length;
+                // console.log(name, i);
                 // console.log(col[name].length, studentTr.find('[checked]').length);
-                var studentMissedTd = $(`<td class="missed-col">${missed}</td>`);
+                var studentMissedTd = $(`<td class="missed-col"></td>`);
                 studentTr.append(studentMissedTd);
+                studentMissedTd.each(function() {
+                    octopus.updateAttendance();
+                    var missed = col[name].length - studentMissedTd.parent('tr').find('[checked]').length;
+                    // console.log(studentMissedTd.parent().html());
+                    studentMissedTd.text(missed);                    
+                });
                 studentsTbody.append(studentTr);
                 // console.log(studentsTbody.html());
             }
