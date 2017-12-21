@@ -148,7 +148,6 @@ $(function(){
         },
         // 渲染
         render: function(name) {
-            console.log('tableBodyView render');
             var days = octopus.getDays();
             var tbody = $('tbody');
             var student = octopus.getCurrentAttendance(name);
@@ -179,7 +178,7 @@ $(function(){
     var missedView = {
         // 初始化
         init: function() {
-            // 表头只需要渲染一次，但是这样感觉不合理，下一版再调整
+            // 表头只需要渲染一次，但是这样感觉不合理，下一版改进
             $('thead').children('tr').append(`<th class="missed-col">Days Missed-col</th>`);
             this.render();
         },
@@ -189,7 +188,6 @@ $(function(){
             $('td.name-col').each(function() {
                 var name = $(this).text();
                 var missed = octopus.getMissed(name, days);
-                console.log(missed);
                 $(this).parent().find('.missed-col').text(missed);
             });
         }
